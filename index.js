@@ -6,17 +6,22 @@
     var composer, octoMain, skeleton;
     var loader;
 
+
+
 //Execute the main functions when the page loads
 window.onload = function(event) {
 
     var clock = new THREE.Clock();
 
+document.body.appendChild( WEBVR.createButton( renderer ) );
+
     init();
-    animate();
+    // animate();
 
 
     function init() {
       renderer = new THREE.WebGLRenderer();
+      renderer.vr.enabled = true;
       element = renderer.domElement;
       container = document.getElementById('container');
       container.appendChild(element);
@@ -135,14 +140,19 @@ window.onload = function(event) {
       controls.update(dt);
     }
 
-    function render(dt) {
+    console.log("what is renderer?", renderer);
+    renderer.setAnimationLoop (function render(dt) {
+        particle.rotation.x += 0.0000;
+        particle.rotation.y -= 0.0040;
+
+
 
 
       effect.render(scene, camera);
-    }
+    });
 
     function animate(t) {
-      requestAnimationFrame(animate);
+
 
       particle.rotation.x += 0.0000;
       particle.rotation.y -= 0.0040;
