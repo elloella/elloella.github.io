@@ -13,7 +13,7 @@ window.onload = function(event) {
 
     var clock = new THREE.Clock();
 
-document.body.appendChild( WEBVR.createButton( renderer ) );
+// document.body.appendChild( WEBVR.createButton( renderer ) ); WEB VR 
 
     init();
     // animate();
