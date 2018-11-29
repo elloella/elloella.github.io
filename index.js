@@ -13,10 +13,10 @@ window.onload = function(event) {
 
     var clock = new THREE.Clock();
 
-// document.body.appendChild( WEBVR.createButton( renderer ) ); WEB VR
+document.body.appendChild( WEBVR.createButton( renderer ) );
 
     init();
-    animate();
+    // animate();
 
 
     function init() {
@@ -140,7 +140,7 @@ window.onload = function(event) {
       controls.update(dt);
     }
 
-
+    console.log("what is renderer?", renderer);
     renderer.setAnimationLoop (function render(dt) {
         particle.rotation.x += 0.0000;
         particle.rotation.y -= 0.0040;
@@ -151,16 +151,15 @@ window.onload = function(event) {
       effect.render(scene, camera);
     });
 
-console.log("what is renderer?", renderer);
     function animate(t) {
-    requestAnimationFrame(animate);
+      //requestAnimationFrame(animate);
 
       particle.rotation.x += 0.0000;
       particle.rotation.y -= 0.0040;
 
 
       update(clock.getDelta());
-      //render(clock.getDelta());
+      render(clock.getDelta());
     }
 
     function fullscreen() {
