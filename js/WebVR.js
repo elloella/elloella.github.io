@@ -144,7 +144,7 @@ var WEBVR = {
 					.then( function () { showEnterXR( device ); } )
 					.catch( showVRNotFound );
 
-			} ).catch( showVRNotFound );
+			} ).catch(  );
 
 			return button;
 
