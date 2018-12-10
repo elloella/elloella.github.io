@@ -1,177 +1,155 @@
-//Global variables
-
-    var camera, scene, renderer;
-    var effect, controls;
-    var element, container;
-    var composer, octoMain, skeleton;
-    var loader;
-
-
-
-//Execute the main functions when the page loads
-window.onload = function(event) {
-
-    var clock = new THREE.Clock();
-
-document.body.appendChild( WEBVR.createButton( renderer ) );
-
-    init();
-    // animate();
-
-
-    function init() {
-      renderer = new THREE.WebGLRenderer();
-      renderer.vr.enabled = true;
-      element = renderer.domElement;
-      container = document.getElementById('container');
-      container.appendChild(element);
-      effect = new THREE.StereoEffect(renderer);
-      scene = new THREE.Scene();
-
-//Create camera
-      camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 0.01, 1000);
-      camera.position.set(0, 12, 0);
-      scene.add(camera);
-
-// Create the lights
-      var ambientLight = new THREE.AmbientLight(0x999999 );
-      scene.add(ambientLight);
-
-      var lights = [];
-      lights[0] = new THREE.DirectionalLight( 0xffffff, 1 );
-      lights[0].position.set( 1, 0, 0 );
-      lights[1] = new THREE.DirectionalLight( 0x11E8BB, 1 );
-      lights[1].position.set( 0.75, 1, 0.5 );
-      lights[2] = new THREE.DirectionalLight( 0x8200C9, 1 );
-      lights[2].position.set( -0.75, -1, 0.5 );
-      scene.add( lights[0] );
-      scene.add( lights[1] );
-      scene.add( lights[2] );
-
-      octoMain = new THREE.Object3D();
-      scene.add(octoMain);
-
-      var mtlLoader = new THREE.MTLLoader()
-      mtlLoader.load(
-        'City.mtl',
-        function (material) {
-          var objLoader = new THREE.OBJLoader()
-          objLoader.setMaterials(material)
-          objLoader.load(
-            'City.obj',
-            function (object) {
-              octoMain.add(object);
-            }
-          )
-        }
-      )
-
-      loader = new THREE.OBJLoader();
-      loader.load(
-        'City.obj',
-        function (obj) {
-          octoMain.add(obj)
-        }
-      )
-
-//Create the Particles
-      particle = new THREE.Object3D();
-      scene.add(particle);
-
-      var geometry = new THREE.SphereGeometry(2, 0);
-      var material = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        shading: THREE.FlatShading
-      });
-
-      for (var i = 0; i < 1000; i++) {
-        var mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-        mesh.position.multiplyScalar(90 + (Math.random() * 700));
-        mesh.rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
-        particle.add(mesh);
-      }
-
-
-
-      controls = new THREE.OrbitControls(camera, element);
-
-      controls.target.set(
-        camera.position.x + 0.1,
-        camera.position.y,
-        camera.position.z
-      );
-      controls.noZoom = true;
-      controls.noPan = true;
-
-      function setOrientationControls(e) {
-        if (!e.alpha) {
-          return;
-        }
-        controls = new THREE.DeviceOrientationControls(camera, true);
-        controls.connect();
-        controls.update();
-        element.addEventListener('click', fullscreen, false);
-        window.removeEventListener('deviceorientation', setOrientationControls, true);
-      }
-        window.addEventListener('deviceorientation', setOrientationControls, true);
-        window.addEventListener('resize', resize, false);
-      setTimeout(resize, 1);
-    }
-
-//Keep everything appearing properly on screen when window resizes
-    function resize() {
-      var width = container.offsetWidth;
-      var height = container.offsetHeight;
-
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(width, height);
-      effect.setSize(width, height);
-    }
-
-
-    function update(dt) {
-      resize();
-
-      camera.updateProjectionMatrix();
-
-      controls.update(dt);
-    }
-
-    console.log("what is renderer?", renderer);
-    renderer.setAnimationLoop (function render(dt) {
-        particle.rotation.x += 0.0000;
-        particle.rotation.y -= 0.0040;
-
-
-
-
-      effect.render(scene, camera);
-    });
-
-    function animate(t) {
-      //requestAnimationFrame(animate);
-
-      particle.rotation.x += 0.0000;
-      particle.rotation.y -= 0.0040;
-
-
-      update(clock.getDelta());
-      render(clock.getDelta());
-    }
-
-    function fullscreen() {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      } else if (container.mozRequestFullScreen) {
-        container.mozRequestFullScreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      }
-    }
-
-}
+var clock = new THREE.Clock();
+			var container;
+			var camera, scene, raycaster, renderer;
+			var room;
+			var isMouseDown = false;
+			var INTERSECTED;
+			var crosshair;
+			init();
+			animate();
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				var info = document.createElement( 'div' );
+				info.style.position = 'absolute';
+				info.style.top = '10px';
+				info.style.width = '100%';
+				info.style.textAlign = 'center';
+				info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - interactive cubes';
+				container.appendChild( info );
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x505050 );
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 10 );
+				scene.add( camera );
+				crosshair = new THREE.Mesh(
+					new THREE.RingBufferGeometry( 0.02, 0.04, 32 ),
+					new THREE.MeshBasicMaterial( {
+						color: 0xffffff,
+						opacity: 0.5,
+						transparent: true
+					} )
+				);
+				crosshair.position.z = - 2;
+				camera.add( crosshair );
+				room = new THREE.LineSegments(
+					new THREE.BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
+					new THREE.LineBasicMaterial( { color: 0x808080 } )
+				);
+				room.position.y = 3;
+				scene.add( room );
+				scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
+				var light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 1, 1, 1 ).normalize();
+				scene.add( light );
+				var geometry = new THREE.BoxBufferGeometry( 0.15, 0.15, 0.15 );
+				for ( var i = 0; i < 200; i ++ ) {
+					var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+					object.position.x = Math.random() * 4 - 2;
+					object.position.y = Math.random() * 4 - 2;
+					object.position.z = Math.random() * 4 - 2;
+					object.rotation.x = Math.random() * 2 * Math.PI;
+					object.rotation.y = Math.random() * 2 * Math.PI;
+					object.rotation.z = Math.random() * 2 * Math.PI;
+					object.scale.x = Math.random() + 0.5;
+					object.scale.y = Math.random() + 0.5;
+					object.scale.z = Math.random() + 0.5;
+					object.userData.velocity = new THREE.Vector3();
+					object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+					object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+					object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+					room.add( object );
+				}
+				raycaster = new THREE.Raycaster();
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.vr.enabled = true;
+				container.appendChild( renderer.domElement );
+				renderer.domElement.addEventListener( 'mousedown', onMouseDown, false );
+				renderer.domElement.addEventListener( 'mouseup', onMouseUp, false );
+				renderer.domElement.addEventListener( 'touchstart', onMouseDown, false );
+				renderer.domElement.addEventListener( 'touchend', onMouseUp, false );
+				window.addEventListener( 'resize', onWindowResize, false );
+				//
+				window.addEventListener( 'vrdisplaypointerrestricted', onPointerRestricted, false );
+				window.addEventListener( 'vrdisplaypointerunrestricted', onPointerUnrestricted, false );
+				document.body.appendChild( WEBVR.createButton( renderer ) );
+			}
+			function onMouseDown() {
+				isMouseDown = true;
+			}
+			function onMouseUp() {
+				isMouseDown = false;
+			}
+			function onPointerRestricted() {
+				var pointerLockElement = renderer.domElement;
+				if ( pointerLockElement && typeof ( pointerLockElement.requestPointerLock ) === 'function' ) {
+					pointerLockElement.requestPointerLock();
+				}
+			}
+			function onPointerUnrestricted() {
+				var currentPointerLockElement = document.pointerLockElement;
+				var expectedPointerLockElement = renderer.domElement;
+				if ( currentPointerLockElement && currentPointerLockElement === expectedPointerLockElement && typeof ( document.exitPointerLock ) === 'function' ) {
+					document.exitPointerLock();
+				}
+			}
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+			//
+			function animate() {
+				renderer.setAnimationLoop( render );
+			}
+			function render() {
+				var delta = clock.getDelta() * 60;
+				if ( isMouseDown === true ) {
+					var cube = room.children[ 0 ];
+					room.remove( cube );
+					cube.position.set( 0, 0, - 0.75 );
+					cube.position.applyQuaternion( camera.quaternion );
+					cube.userData.velocity.x = ( Math.random() - 0.5 ) * 0.02 * delta;
+					cube.userData.velocity.y = ( Math.random() - 0.5 ) * 0.02 * delta;
+					cube.userData.velocity.z = ( Math.random() * 0.01 - 0.05 ) * delta;
+					cube.userData.velocity.applyQuaternion( camera.quaternion );
+					room.add( cube );
+				}
+				// find intersections
+				raycaster.setFromCamera( { x: 0, y: 0 }, camera );
+				var intersects = raycaster.intersectObjects( room.children );
+				if ( intersects.length > 0 ) {
+					if ( INTERSECTED != intersects[ 0 ].object ) {
+						if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+						INTERSECTED = intersects[ 0 ].object;
+						INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+						INTERSECTED.material.emissive.setHex( 0xff0000 );
+					}
+				} else {
+					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+					INTERSECTED = undefined;
+				}
+				// Keep cubes inside room
+				for ( var i = 0; i < room.children.length; i ++ ) {
+					var cube = room.children[ i ];
+					cube.userData.velocity.multiplyScalar( 1 - ( 0.001 * delta ) );
+					cube.position.add( cube.userData.velocity );
+					if ( cube.position.x < - 3 || cube.position.x > 3 ) {
+						cube.position.x = THREE.Math.clamp( cube.position.x, - 3, 3 );
+						cube.userData.velocity.x = - cube.userData.velocity.x;
+					}
+					if ( cube.position.y < - 3 || cube.position.y > 3 ) {
+						cube.position.y = THREE.Math.clamp( cube.position.y, - 3, 3 );
+						cube.userData.velocity.y = - cube.userData.velocity.y;
+					}
+					if ( cube.position.z < - 3 || cube.position.z > 3 ) {
+						cube.position.z = THREE.Math.clamp( cube.position.z, - 3, 3 );
+						cube.userData.velocity.z = - cube.userData.velocity.z;
+					}
+					cube.rotation.x += cube.userData.velocity.x * 2 * delta;
+					cube.rotation.y += cube.userData.velocity.y * 2 * delta;
+					cube.rotation.z += cube.userData.velocity.z * 2 * delta;
+				}
+				renderer.render( scene, camera );
+			}
