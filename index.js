@@ -174,5 +174,3 @@ window.onload = function(event) {
         container.webkitRequestFullscreen();
       }
     }
-
-}
