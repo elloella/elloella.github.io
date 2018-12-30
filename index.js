@@ -1,79 +1,27 @@
-//Global variables
+window.onload = function(event) {
 
     var camera, scene, renderer;
     var effect, controls;
     var element, container;
-    var composer, octoMain, skeleton;
-    var loader;
-
-
-//Execute the main functions when the page loads
-window.onload = function(event) {
+    var composer, particle;
 
     var clock = new THREE.Clock();
 
-
-
     init();
-    // animate();
-
+    animate();
 
     function init() {
       renderer = new THREE.WebGLRenderer();
-      renderer.vr.enabled = true;
       element = renderer.domElement;
       container = document.getElementById('container');
       container.appendChild(element);
+
       effect = new THREE.StereoEffect(renderer);
       scene = new THREE.Scene();
-
-//Create camera
       camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 0.01, 1000);
-      camera.position.set(0, 12, 0);
+      camera.position.set(-500, 400, -200);
       scene.add(camera);
 
-// Create the lights
-      var ambientLight = new THREE.AmbientLight(0x999999 );
-      scene.add(ambientLight);
-
-      var lights = [];
-      lights[0] = new THREE.DirectionalLight( 0xffffff, 1 );
-      lights[0].position.set( 1, 0, 0 );
-      lights[1] = new THREE.DirectionalLight( 0x11E8BB, 1 );
-      lights[1].position.set( 0.75, 1, 0.5 );
-      lights[2] = new THREE.DirectionalLight( 0x8200C9, 1 );
-      lights[2].position.set( -0.75, -1, 0.5 );
-      scene.add( lights[0] );
-      scene.add( lights[1] );
-      scene.add( lights[2] );
-
-      octoMain = new THREE.Object3D();
-      scene.add(octoMain);
-
-      var mtlLoader = new THREE.MTLLoader()
-      mtlLoader.load(
-        'City.mtl',
-        function (material) {
-          var objLoader = new THREE.OBJLoader()
-          objLoader.setMaterials(material)
-          objLoader.load(
-            'City.obj',
-            function (object) {
-              octoMain.add(object);
-            }
-          )
-        }
-      )
-
-      loader = new THREE.OBJLoader();
-      loader.load(
-        'City.obj',
-        function (obj) {
-          octoMain.add(obj)
-        }
-      )
-
-//Create the Particles
       particle = new THREE.Object3D();
       scene.add(particle);
 
@@ -91,10 +39,23 @@ window.onload = function(event) {
         particle.add(mesh);
       }
 
+      var ambientLight = new THREE.AmbientLight(0x999999 );
+      scene.add(ambientLight);
+
+      var lights = [];
+      lights[0] = new THREE.DirectionalLight( 0xffffff, 1 );
+      lights[0].position.set( 1, 0, 0 );
+      lights[1] = new THREE.DirectionalLight( 0x11E8BB, 1 );
+      lights[1].position.set( 0.75, 1, 0.5 );
+      lights[2] = new THREE.DirectionalLight( 0x8200C9, 1 );
+      lights[2].position.set( -0.75, -1, 0.5 );
+      scene.add( lights[0] );
+      scene.add( lights[1] );
+      scene.add( lights[2] );
 
 
       controls = new THREE.OrbitControls(camera, element);
-
+      // controls.rotateUp(Math.PI / 4);
       controls.target.set(
         camera.position.x + 0.1,
         camera.position.y,
@@ -103,24 +64,41 @@ window.onload = function(event) {
       controls.noZoom = true;
       controls.noPan = true;
 
-      document.body.appendChild( WEBVR.createButton( renderer ) );
+      function setOrientationControls(e) {
+        if (!e.alpha) {
+          return;
+        }
 
-    //   function setOrientationControls(e) {
-    //     if (!e.alpha) {
-    //       return;
-    //     }
-    //     controls = new THREE.DeviceOrientationControls(camera, true);
-    //     controls.connect();
-    //     controls.update();
-    //     element.addEventListener('click', fullscreen, false);
-    //     window.removeEventListener('deviceorientation', setOrientationControls, true);
-    //   }
-    //     window.addEventListener('deviceorientation', setOrientationControls, true);
-    //     window.addEventListener('resize', resize, false);
-    //   setTimeout(resize, 1);
-    // }
+        controls = new THREE.DeviceOrientationControls(camera, true);
+        controls.connect();
+        controls.update();
 
-//Keep everything appearing properly on screen when window resizes
+        element.addEventListener('click', fullscreen, false);
+
+        window.removeEventListener('deviceorientation', setOrientationControls, true);
+      }
+      window.addEventListener('deviceorientation', setOrientationControls, true);
+
+
+      var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
+      scene.add(light);
+
+
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.rotation.x = -Math.PI / 2;
+      scene.add(mesh);
+
+      cube = new THREE.Mesh( new THREE.CubeGeometry( 200, 200, 200 ), new THREE.MeshNormalMaterial() );
+      cube.position.y = 300;
+      cube.position.z = 20;
+      cube.position.x = 0;
+
+      scene.add(cube);
+
+      window.addEventListener('resize', resize, false);
+      setTimeout(resize, 1);
+    }
+
     function resize() {
       var width = container.offsetWidth;
       var height = container.offsetHeight;
@@ -132,7 +110,6 @@ window.onload = function(event) {
       effect.setSize(width, height);
     }
 
-
     function update(dt) {
       resize();
 
@@ -141,23 +118,22 @@ window.onload = function(event) {
       controls.update(dt);
     }
 
-    console.log("what is renderer?", renderer);
-    renderer.setAnimationLoop (function render(dt) {
-        particle.rotation.x += 0.0000;
-        particle.rotation.y -= 0.0040;
-
-
-
+    function render(dt) {
+      cube.rotation.x += 0.02;
+      cube.rotation.y += 0.0225;
+      cube.rotation.z += 0.0175;
 
       effect.render(scene, camera);
-    });
+    }
 
     function animate(t) {
-      //requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
 
       particle.rotation.x += 0.0000;
       particle.rotation.y -= 0.0040;
 
+      cube.rotation.x += 0.005;
+      cube.rotation.y += 0.01;
 
       update(clock.getDelta());
       render(clock.getDelta());
@@ -174,5 +150,5 @@ window.onload = function(event) {
         container.webkitRequestFullscreen();
       }
     }
-  }
+
 }
