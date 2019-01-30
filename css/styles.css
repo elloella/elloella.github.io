@@ -1,0 +1,35 @@
+body { /*Padding for footer and colour of text*/
+
+  padding-top: 50px;
+  color: #757780;
+  font-family: 'Economica', sans-serif;
+  font-size: 20px;
+}
+
+.carousel { /*Setting conditions for the carousel*/
+  margin-bottom: 60px;
+}
+
+.carousel-caption {
+  bottom: 50px;
+}
+
+
+
+.featurette-divider {
+  margin:70px ; /* Spaceing */
+}
+
+.featurette-heading { /*makes text thinner */
+  font-weight: 300;
+}
+
+.aboutUsSection{
+  color: #757780S;
+  background-color: #BBD5ED;
+}
+
+footer{
+  background-color: #258EA6;
+  color: #fff;
+}
