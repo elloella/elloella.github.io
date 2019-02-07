@@ -8,6 +8,7 @@ body { /*Padding for footer and colour of text*/
 
 .carousel { /*Setting conditions for the carousel*/
   margin-bottom: 60px;
+
 }
 
 .carousel-caption {
@@ -32,4 +33,10 @@ body { /*Padding for footer and colour of text*/
 footer{
   background-color: #258EA6;
   color: #fff;
+}
+
+@media (min-width: 1400px){
+  img{
+    width: 100%;
+  }
 }
