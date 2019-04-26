@@ -1,42 +1,94 @@
-body { /*Padding for footer and colour of text*/
-
+body { /*Setting the body font and size.*/
   padding-top: 50px;
-  color: #757780;
-  font-family: 'Economica', sans-serif;
-  font-size: 20px;
+  color: #253D5B;
+  font-family: 'Libre Franklin', sans-serif;
+  font-size: 22px;
 }
 
-.carousel { /*Setting conditions for the carousel*/
-  margin-bottom: 60px;
-
+/*Editing the chart container to add border*/
+.chartContainer {
+    border: 3px solid #6e8fc5;
+    box-sizing: border-box;
 }
-
-.carousel-caption {
-  bottom: 50px;
-}
-
-
-
-.featurette-divider {
-  margin:70px ; /* Spaceing */
-}
-
-.featurette-heading { /*makes text thinner */
-  font-weight: 300;
-}
-
-.aboutUsSection{
-  color: #757780S;
-  background-color: #BBD5ED;
-}
-
-footer{
-  background-color: #258EA6;
-  color: #fff;
-}
-
-@media (min-width: 1400px){
-  img{
-    width: 100%;
+/*Setting colour of profile icon*/
+.icon {
+    color: #253D5B;
   }
+
+/*Setting colour of breakdown section*/
+.breakdown{
+  color: #253D5B;
+  background-color: #A7C6E4;
+
 }
+
+/*Setting the boarder colour for the table*/
+table.table-bordered > thead > tr > th{
+    border:3px solid #6e8fc5;
+}
+table.table-bordered > tbody > tr > td{
+    border:3px solid #6e8fc5;
+}
+/*Setting the button colours*/
+.button{
+  color: #253D5B;
+  background-color: #A7C6E4;
+}
+
+/*Setting the button colours*/
+.button1{
+  color: #253D5B;
+  background-color: #ffffff;
+  border-color: #6e8fc5;
+  border-width: 3px;
+}
+/*Setting the button dropdown colours*/
+.buttonDR{
+  color: #253D5B;
+  background-color: #ffffff;
+  border-color: #6e8fc5;
+  border-width: 3px;
+}
+/*Setting the footer conditions*/
+footer{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #35A793;
+  color: #253D5B;
+}
+
+/*PROFILE PAGE*/
+
+/*Setting up header font*/
+.header{
+font-size: 28px;
+}
+
+/*Setting up colour of profile boxes*/
+.profile{
+ color: #253D5B;
+ background-color: #A7C6E4;
+
+}
+.test{
+  color: #253D5B;
+  border-color: #A7C6E4;
+  border-width: 1px;
+}
+
+.modal-header {
+    padding:9px 15px;
+    border-bottom:1px solid #6e8fc5;
+    background-color: #6e8fc5;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+     border-top-left-radius: 5px;
+     border-top-right-radius: 5px;
+ }
+
+#left-bp { display: none; }
+#right-bp { display: none; }
